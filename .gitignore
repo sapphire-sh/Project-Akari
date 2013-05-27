@@ -15,3 +15,5 @@ akari_main/Release/
 akari_main/Debug/
 *.sdf
 *.opensdf
+Debug/
+Release/
