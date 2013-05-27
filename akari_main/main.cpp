@@ -21,7 +21,41 @@ _人_　　　　　　　‥ ＼丶　 　,' 　　　　　　　　　　` �
 　　　　　　　　　　　　　　　　　　 ￤　　 　 ′ 　 l
 */
 
+//임시 테스트용
+void DrawAxis() {
+    glPushMatrix();
+    glLineWidth(2.0f);
+
+    glBegin(GL_LINES);
+    //x
+    glColor4f(1, 0, 0, 1);
+    glVertex3f(1, 0, 0);
+    glVertex3f(0, 0, 0);
+    glVertex3f(-1, 0, 0);
+    glVertex3f(0, 0, 0);
+
+    //y
+    glColor4f(0, 1, 0, 1);
+    glVertex3f(0, 1, 0);
+    glVertex3f(0, 0, 0);
+    glVertex3f(0, -1, 0);
+    glVertex3f(0, 0, 0);
+
+    //z
+    glColor4f(0, 0, 1, 1);
+    glVertex3f(0, 0, 1);
+    glVertex3f(0, 0, 0);
+    glVertex3f(0, 0, -1);
+    glVertex3f(0, 0, 0);
+
+    glEnd();
+
+    glPopMatrix();
+}
+
 int main(void) {
+
+    const int w = 640, h = 480;
 
     int running = GL_TRUE;
     // Initialize GLFW
@@ -30,14 +64,33 @@ int main(void) {
     }
 
     // Open an OpenGL window 
-    if( !glfwOpenWindow( 300,300, 0,0,0,0,0,0, GLFW_WINDOW ) ) {
-        glfwTerminate(); exit( EXIT_FAILURE ); 
+    if( !glfwOpenWindow( w, h, 0, 0, 0, 0, 0, 0, GLFW_WINDOW ) ) {
+        glfwTerminate(); 
+        exit( EXIT_FAILURE ); 
     }
+    glfwSetWindowTitle("Project Akari");
+
+    //Init setting
+    glEnable (GL_DEPTH_TEST);
+    glClearColor(1, 1, 1, 1);
+    glViewport(0, 0, w, h);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    //직교 투영
+    glOrtho(-1, 1, -1, 1, 1, 1000);
+    //원근 투영
+    //glFrustum(-1, 1, -1, 1, 1, 1000);
+    glMatrixMode(GL_MODELVIEW);
+
 
     // Main loop 
     while( running ) {
         // OpenGL rendering goes here... 
-        glClear( GL_COLOR_BUFFER_BIT );
+        glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+        glLoadIdentity();
+        gluLookAt(1, 1, 1, 0, 0, 0, 0, 1, 0);
+
+        DrawAxis();
         // Swap front and back rendering buffers 
         glfwSwapBuffers();
         // Check if ESC key was pressed or window was closed 
@@ -49,4 +102,4 @@ int main(void) {
     exit( EXIT_SUCCESS );
 
     return 0;
-}   
+}
