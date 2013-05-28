@@ -17,3 +17,4 @@ akari_main/Debug/
 *.opensdf
 Debug/
 Release/
+ipch/

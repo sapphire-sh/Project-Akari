@@ -1,6 +1,5 @@
 ﻿// Ŭnicode please
-#include <GL/glfw.h>
-#include <cstdlib>
+#include "stdafx.h"
 
 /*
 　　　　　　　　　　　　　　　　　　　　　　 - - ､　　　　　　　　　　- -
@@ -47,7 +46,7 @@ void DrawAxis() {
     glVertex3f(0, 0, 0);
     glVertex3f(0, 0, -1);
     glVertex3f(0, 0, 0);
-
+    
     glEnd();
 
     glPopMatrix();
