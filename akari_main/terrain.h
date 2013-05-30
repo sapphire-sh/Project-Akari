@@ -2,6 +2,8 @@
 #ifndef __TERRAIN_H__
 #define __TERRAIN_H__
 
+namespace akari {;
+
 class Terrain {
     typedef std::vector<glm::vec3> VertexList;
     struct _Index {
@@ -19,6 +21,8 @@ public:
 private:
     VertexList vertex_list_;
     IndexList index_list_;
+
+};
 
 };
 

@@ -2,6 +2,8 @@
 #include "stdafx.h"
 #include "terrain.h"
 
+using akari::Terrain;
+
 Terrain::Terrain(int width, int height) {
 
     //vertex, index init
@@ -17,21 +19,21 @@ Terrain::Terrain(int width, int height) {
 
                 (0, h)      (w, h)
             */
-            idx = h * height + w;
-            vertex_list_[idx].x = (-(width/2) + w) * 0.1f;
+            idx = (width + 1) * h + w;
+            vertex_list_[idx].x = (-(width/2) + w);
             vertex_list_[idx].y = 0;
-            vertex_list_[idx].z = (-(height/2) + h) * 0.1f;
+            vertex_list_[idx].z = (-(height/2) + h);
         }
     }
 
     for(int h=0; h<height; ++h) {
         for(int w=0; w<width; ++w) {
-            idx = h * height + w;
+            idx = width * h + w;
             //quad index
-            index_list_[idx]._1 = h * height + w;
-            index_list_[idx]._2 = (h + 1) * height + w;
-            index_list_[idx]._3 = (h + 1) * height + (w + 1);
-            index_list_[idx]._4 = h * height + (w + 1);
+            index_list_[idx]._1 = idx;
+            index_list_[idx]._2 = idx + (width + 1);
+            index_list_[idx]._3 = idx + (width + 1) + 1;
+            index_list_[idx]._4 = idx + 1;
         }
     }
 }
@@ -45,6 +47,7 @@ void Terrain::Draw(float elapsed) {
     glPushAttrib(GL_CURRENT_BIT);
     glEnableClientState(GL_VERTEX_ARRAY);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    
     glLineWidth(0.5);
     glColor4f(0, 0, 0, 1);
     glVertexPointer(3, GL_FLOAT, 0, &vertex_list_[0]);
