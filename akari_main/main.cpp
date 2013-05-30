@@ -1,5 +1,6 @@
 ﻿// Ŭnicode please
 #include "stdafx.h"
+#include "terrain.h"
 
 /*
 　　　　　　　　　　　　　　　　　　　　　　 - - ､　　　　　　　　　　- -
@@ -22,39 +23,42 @@ _人_　　　　　　　‥ ＼丶　 　,' 　　　　　　　　　　` �
 
 //임시 테스트용
 void DrawAxis() {
+
+    const static float length = 500;
+
     glPushMatrix();
+    glPushAttrib(GL_CURRENT_BIT);
+
     glLineWidth(2.0f);
 
     glBegin(GL_LINES);
     //x
     glColor4f(1, 0, 0, 1);
-    glVertex3f(1, 0, 0);
-    glVertex3f(0, 0, 0);
-    glVertex3f(-1, 0, 0);
-    glVertex3f(0, 0, 0);
-
+    glVertex3f(-length/2, 0, 0);
+    glVertex3f(length/2, 0, 0);
+    
     //y
     glColor4f(0, 1, 0, 1);
-    glVertex3f(0, 1, 0);
-    glVertex3f(0, 0, 0);
-    glVertex3f(0, -1, 0);
-    glVertex3f(0, 0, 0);
-
+    glVertex3f(0, -length/2, 0);
+    glVertex3f(0, length/2, 0);
+    
     //z
     glColor4f(0, 0, 1, 1);
-    glVertex3f(0, 0, 1);
-    glVertex3f(0, 0, 0);
-    glVertex3f(0, 0, -1);
-    glVertex3f(0, 0, 0);
+    glVertex3f(0, 0, -length/2);
+    glVertex3f(0, 0, length/2);
     
     glEnd();
 
+    glPopAttrib();
     glPopMatrix();
 }
 
 int main(void) {
 
     const int w = 1024, h = 768;
+
+    //
+    Terrain terr(512, 512);
 
     int running = GL_TRUE;
     // Initialize GLFW
@@ -76,9 +80,9 @@ int main(void) {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     //직교 투영
-    glOrtho(-1, 1, -1, 1, 1, 1000);
+    //glOrtho(-1, 1, -1, 1, 1, 1000);
     //원근 투영
-    //glFrustum(-1, 1, -1, 1, 1, 1000);
+    glFrustum(-1, 1, -1, 1, 1, 1000);
     glMatrixMode(GL_MODELVIEW);
     
     // Main loop 
@@ -86,9 +90,13 @@ int main(void) {
         // OpenGL rendering goes here... 
         glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
         glLoadIdentity();
-        gluLookAt(1, 1, 1, 0, 0, 0, 0, 1, 0);
+        gluLookAt(3, 3, 3, 0, 0, 0, 0, 1, 0);
 
+        terr.Draw(0);
         DrawAxis();
+
+        glFlush();
+
         // Swap front and back rendering buffers 
         glfwSwapBuffers();
         // Check if ESC key was pressed or window was closed 
