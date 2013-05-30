@@ -54,7 +54,7 @@ void DrawAxis() {
 
 int main(void) {
 
-    const int w = 640, h = 480;
+    const int w = 1024, h = 768;
 
     int running = GL_TRUE;
     // Initialize GLFW
@@ -80,8 +80,7 @@ int main(void) {
     //원근 투영
     //glFrustum(-1, 1, -1, 1, 1, 1000);
     glMatrixMode(GL_MODELVIEW);
-
-
+    
     // Main loop 
     while( running ) {
         // OpenGL rendering goes here... 
