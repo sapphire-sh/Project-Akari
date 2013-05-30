@@ -57,7 +57,7 @@ int main(void) {
     const int w = 1024, h = 768;
 
     //
-    Terrain terr(512, 512);
+    Terrain terr(512, 512, 0);
 
     int running = GL_TRUE;
     // Initialize GLFW
@@ -89,7 +89,7 @@ int main(void) {
         // OpenGL rendering goes here... 
         glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
         glLoadIdentity();
-        gluLookAt(3, 3, 3, 0, 0, 0, 0, 1, 0);
+        gluLookAt(2, 2, 2, 0, 0, 0, 0, 1, 0);
 
         terr.Draw(0);
         DrawAxis();
