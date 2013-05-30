@@ -54,7 +54,6 @@ void DrawAxis() {
 }
 
 int main(void) {
-
     const int w = 1024, h = 768;
 
     //
