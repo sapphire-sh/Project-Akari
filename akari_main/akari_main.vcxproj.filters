@@ -24,12 +24,18 @@
     <ClCompile Include="terrain.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="camera.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
     <ClInclude Include="terrain.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="camera.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
   </ItemGroup>

@@ -2,6 +2,8 @@
 #include "stdafx.h"
 #include "terrain.h"
 
+using akari::Terrain;
+
 Terrain::Terrain(int _width, int _height, int _depth) {
 
     //vertex, index init
@@ -12,7 +14,8 @@ Terrain::Terrain(int _width, int _height, int _depth) {
     plane_index_list_.resize((_width - 1) * (_height - 1) * 2);
 	outline_index_list_.resize((_width - 1) * (_height - 1) * 2);
 	diagonal_index_list_.resize((_width - 1) * (_height - 1));
-	isntPlane.resize((_width - 1) * (_height - 1));
+	diagonal_color_list_.resize((_width - 1) * (_height - 1) * 2);
+	selected_index_list_.resize(4);
 
     int idx = 0;
     for(int h=0; h<_height; ++h) {
@@ -23,10 +26,8 @@ Terrain::Terrain(int _width, int _height, int _depth) {
 
                 (0, h)      (w, h)
             */
-			if(h==_height-1&&w==_width-1)
-				h=_height-1;
             vertex_list_[idx].x = (-(_width/2) + w) * 0.1f;
-            vertex_list_[idx].y = _depth;
+            vertex_list_[idx].y = (float) _depth;
             vertex_list_[idx].z = (-(_height/2) + h) * 0.1f;
 			idx++;
         }
@@ -35,39 +36,60 @@ Terrain::Terrain(int _width, int _height, int _depth) {
 	idx=0;
     for(int h=0; h<_height-1; ++h) {
         for(int w=0; w<_width-1; ++w) {
-            //quad index
+            //plane index
             plane_index_list_[idx]._1 = h * _height + w;
             plane_index_list_[idx]._2 = (h + 1) * _height + w;
             plane_index_list_[idx]._3 = h * _height + (w + 1);
+
+			//outline index
+			outline_index_list_[idx]._1 = h * _height + w;
+            outline_index_list_[idx]._2 = (h + 1) * _height + w;
+
+			//diagonal color
+			diagonal_color_list_[idx]._red = 0.5f;
+			diagonal_color_list_[idx]._green = 0.5f;
+			diagonal_color_list_[idx]._blue = 0.5f;
+			diagonal_color_list_[idx]._alpha = 1.0f;
+
 			idx++;
+
+			//plane_index
 			plane_index_list_[idx]._1 = h * _height + (w + 1);
             plane_index_list_[idx]._2 = (h + 1) * _height + w;
             plane_index_list_[idx]._3 = (h + 1) * _height + (w + 1);
-			idx++;
-        }
-    }
-	idx=0;
-	for(int h=0; h<_height-1; ++h) {
-        for(int w=0; w<_width-1; ++w) {
-            //quad index
-            outline_index_list_[idx]._1 = h * _height + w;
-            outline_index_list_[idx]._2 = (h + 1) * _height + w;
-			idx++;
+
+			//outline index
 			outline_index_list_[idx]._1 = h * _height + w;
             outline_index_list_[idx]._2 = h * _height + (w + 1);
+
+			//diagonal_color
+			diagonal_color_list_[idx]._red = 0.5f;
+			diagonal_color_list_[idx]._green = 0.5f;
+			diagonal_color_list_[idx]._blue = 0.5f;
+			diagonal_color_list_[idx]._alpha = 1.0f;
+
 			idx++;
         }
     }
 	idx = 0;
 	for(int h=0; h<_height-1; ++h) {
         for(int w=0; w<_width-1; ++w) {
-            //quad index
+            //diagonal index
             diagonal_index_list_[idx]._1 = h * _height + w;
             diagonal_index_list_[idx]._2 = (h + 1) * _height + (w + 1);
-			isntPlane[idx] = false;
 			idx++;
         }
     }
+
+
+	selected_index_list_[0]._1 = (width/2) * height + height/2;
+	selected_index_list_[0]._2 = (width/2) * height + height/2 + 1;
+	selected_index_list_[1]._1 = (width/2) * height + height/2 + 1;
+	selected_index_list_[1]._2 = (width/2 + 1) * height + height/2 + 1;
+	selected_index_list_[2]._1 = (width/2 + 1) * height + height/2 + 1;
+	selected_index_list_[2]._2 = (width/2 + 1) * height + height/2;
+	selected_index_list_[3]._1 = (width/2 + 1) * height + height/2;
+	selected_index_list_[3]._2 = (width/2) * height + height/2;
 }
 
 Terrain::~Terrain() {
@@ -79,82 +101,160 @@ void Terrain::Draw(float elapsed) {
     glPushAttrib(GL_CURRENT_BIT);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glVertexPointer(3, GL_FLOAT, 0, &vertex_list_[0]);
-
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glLineWidth(0);
     glColor4f(0.5, 0.5, 0.5, 1);
     glDrawElements(GL_TRIANGLES, plane_index_list_.size() * 3, GL_UNSIGNED_INT, &plane_index_list_[0]);
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glLineWidth(0.5);
-    glColor4f(0, 0, 0, 1);
+    glColor4f(0, 0.5, 0, 1);
     glDrawElements(GL_LINES, outline_index_list_.size() * 2, GL_UNSIGNED_INT, &outline_index_list_[0]);
+	
+	glEnableClientState(GL_COLOR_ARRAY);
+	glColorPointer(4, GL_FLOAT, 0, &diagonal_color_list_[0]);
+//	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glLineWidth(0.5);
+    glDrawElements(GL_LINES, diagonal_index_list_.size() * 2, GL_UNSIGNED_INT, &diagonal_index_list_[0]);
+	glDisableClientState(GL_COLOR_ARRAY);
 
-	int idx =0;
-	for(int i=0; i<width - 1; i++) {
-		for(int j=0; j<height - 1; j++) {
-			if(isntPlane[idx]) {
-				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-				glLineWidth(0.5);
-				glColor4f(0, 0, 0, 1);
-				glDrawElements(GL_LINES, 2, GL_UNSIGNED_INT, &diagonal_index_list_[(i * (height-1) + j)]);
-			}
-		}
-	}
-    
+	glLineWidth(0.5);
+    glColor4f(1, 0, 0, 1);
+//	glPointSize(100);
+    glDrawElements(GL_LINES, selected_index_list_.size() * 2, GL_UNSIGNED_INT, &selected_index_list_[0]);
+
 	glDisableClientState(GL_VERTEX_ARRAY);
     glPopAttrib();
     glPopMatrix();
 }
+
+glm::vec3 findPlane(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3) {
+	return glm::vec3((p2.y*p3.z - p2.z*p3.y) + p1.y*(p2.z - p3.z) + p1.z *(p3.y - p2.y),
+			p1.x*(p3.z - p2.z) + (p2.z*p3.x - p2.x*p3.z) + p1.z *(p2.x - p3.x),
+			p1.x*(p2.y - p3.y) + p1.y*(p3.x - p2.x) + (p2.x*p3.y - p2.y*p3.x));
+}
+
+float Terrain::isMet(glm::vec3 eye, glm::vec3 lookat, glm::vec3 plane) {
+	return (1.0f - plane.x*eye.x - plane.y*eye.y - plane.z*eye.z) / (plane.x * (lookat.x-eye.x)+plane.y * (lookat.y-eye.y) + plane.z * (lookat.z - eye.z));
+}
+
+bool Terrain::isInTriangle(glm::vec3 point, glm::vec3 A, glm::vec3 B, glm::vec3 C) {
+	glm::vec3 temp, temp2, line1, line2, line3;
+	temp = B - A;
+	temp2 = point - A;
+	line1 = glm::vec3(temp.y*temp2.z - temp.z *temp2.y,temp.z*temp2.x - temp.x *temp2.z,temp.x*temp2.y - temp.y *temp2.x);
+	temp = C - B;
+	temp2 = point - B;
+	line2 = glm::vec3(temp.y*temp2.z - temp.z *temp2.y,temp.z*temp2.x - temp.x *temp2.z,temp.x*temp2.y - temp.y *temp2.x);
+	temp = A - C;
+	temp2 = point - C;
+	line3 = glm::vec3(temp.y*temp2.z - temp.z *temp2.y,temp.z*temp2.x - temp.x *temp2.z,temp.x*temp2.y - temp.y *temp2.x);
+
+	if(line1.x*line2.x>=0&&line2.x*line3.x>=0&&line3.x*line1.x>=0) {
+		if(line1.y*line2.y>=0&&line2.y*line3.y>=0&&line3.y*line1.y>=0) {
+			if(line1.z*line2.z>=0&&line2.z*line3.z>=0&&line3.z*line1.z>=0) {
+				return true;
+			}
+			return false;
+		}
+		return false;
+	}
+	return false;
+}
+
+void Terrain::setStartEnd (int *start, int *end,glm::vec3 eye, glm::vec3 lookat) {
+	start[0]=eye.x * 10 + width/2;
+	start[1]=eye.y * 10 + height/2;
+	end[0]=lookat.x * 10 + width/2;;
+	end[1]=lookat.y * 10 + height/2;
+}
+
+void Terrain::setQueue(int *start, int *end, int *queue, int *cnt) {
+	int delta[2],j;
+	float temp;
+	*cnt=1;
+	queue[0]=start[0];
+	queue[1]=start[1];
+
+	if(start[0]<end[0])
+		delta[0]=1;
+	else
+		delta[0]=-1;
+	if(start[1]<end[1])
+		delta[1]=1;
+	else
+		delta[1]=-1;
+
+	j=start[1];
+	for(int i=start[0];i>=0&&i<width;) {
+		i+=delta[0];
+		temp = (1.0f * (end[1]-start[1]))/(end[0]-start[0]) * (i-start[0]) + start[1];
+		while((temp-j)*delta[1]>0) {
+			j+=delta[1];
+			queue[*cnt*2]=i;
+			queue[*cnt*2+1]=j;
+			*cnt+=1;
+		}
+	}
+	queue[*cnt*2]=end[0];
+	queue[*cnt*2+1]=end[1];
+	*cnt+=1;
+}
 /*
-Terrain::Terrain(int width, int height) {
-
-    //vertex, index init
-    vertex_list_.resize((width + 1) * (height + 1));
-    index_list_.resize(width * height);
-
-    int idx = 0;
-    for(int h=0; h<height + 1; ++h) {
-        for(int w=0; w<width + 1; ++w) {
-            
-            //    (0, 0)      (w, 0)
-
-
-            //    (0, h)      (w, h)
-            
-            idx = h * height + w;
-            vertex_list_[idx].x = (-(width/2) + w) * 0.1f;
-            vertex_list_[idx].y = 0;
-            vertex_list_[idx].z = (-(height/2) + h) * 0.1f;
-        }
-    }
-
-    for(int h=0; h<height; ++h) {
-        for(int w=0; w<width; ++w) {
-            idx = h * height + w;
-            //quad index
-            index_list_[idx]._1 = h * height + w;
-            index_list_[idx]._2 = (h + 1) * height + w;
-            index_list_[idx]._3 = (h + 1) * height + (w + 1);
-            index_list_[idx]._4 = h * height + (w + 1);
-        }
-    }
-}
-
-Terrain::~Terrain() {
-
-}
-
-void Terrain::Draw(float elapsed) {
-    glPushMatrix();
-    glPushAttrib(GL_CURRENT_BIT);
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    glLineWidth(0.5);
-    glColor4f(0, 0, 0, 1);
-    glVertexPointer(3, GL_FLOAT, 0, &vertex_list_[0]);
-    glDrawElements(GL_QUADS, index_list_.size() * 4, GL_UNSIGNED_INT, &index_list_[0]);
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glPopAttrib();
-    glPopMatrix();
+void setVec3(glm::vec3 *vector, int _x, int _y, int _z) {
+	vector -> x = _x;
+	vector -> y = _y;
+	vector -> z = _z;
 }*/
+
+void Terrain::Update(glm::vec3 eye, glm::vec3 lookat) {
+	glm::vec3 tri[3];
+	glm::vec3 plane, point;
+	float temp;
+	int start[2],end[2],i, j, *queue, cnt, selectedX, selectedY;
+
+	queue = (int*)malloc(sizeof(int)*(width*height)*2);
+	setStartEnd(start,end,eye,lookat);
+	setQueue(start,end,queue,&cnt);
+
+	for(int k=0;k<cnt;k++) {
+		i = queue[k*2];
+		j = queue[k*2+1];
+		tri[0] = vertex_list_[i * height + j];
+		tri[1] = vertex_list_[i * height + j + 1];
+		tri[2] = vertex_list_[i * height + j + 2];
+		plane = findPlane(tri[0], tri[1], tri[2]);
+		if((temp=isMet(eye,lookat,plane))>0) {
+			point = eye + lookat * temp;
+			if(isInTriangle(point, tri[0], tri[1], tri[2])) {
+				selectedX = i;
+				selectedY = j;
+				break;
+			}
+		}
+
+		tri[0] = vertex_list_[(i + 1) * height + j + 1];
+		plane = findPlane(tri[0], tri[1], tri[2]);
+		if((temp=isMet(eye,lookat,plane))>0) {
+			point = eye + lookat * temp;
+			if(isInTriangle(point, tri[0], tri[1], tri[2])) {
+				selectedX = i;
+				selectedY = j;
+				break;
+			}
+		}
+	}
+
+	if(selectedX>=0&&selectedX<width-1&&selectedY>=0&&selectedY<height-1) {
+		selected_index_list_[0]._1 = selectedX * height + selectedY;
+		selected_index_list_[0]._2 = selectedX * height + selectedY + 1;
+		selected_index_list_[1]._1 = selectedX * height + selectedY + 1;
+		selected_index_list_[1]._2 = (selectedX + 1) * height + selectedY + 1;
+		selected_index_list_[2]._1 = (selectedX + 1) * height + selectedY + 1;
+		selected_index_list_[2]._2 = (selectedX + 1) * height + selectedY;
+		selected_index_list_[3]._1 = (selectedX + 1) * height + selectedY;
+		selected_index_list_[3]._2 = selectedX * height + selectedY;
+	}
+
+	delete queue;
+}

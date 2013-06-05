@@ -1,6 +1,7 @@
 ﻿// Ŭnicode please
 #include "stdafx.h"
 #include "terrain.h"
+#include "camera.h"
 
 /*
 　　　　　　　　　　　　　　　　　　　　　　 - - ､　　　　　　　　　　- -
@@ -21,16 +22,20 @@ _人_　　　　　　　‥ ＼丶　 　,' 　　　　　　　　　　` �
 　　　　　　　　　　　　　　　　　　 ￤　　 　 ′ 　 l
 */
 
+#define WINDOW_WIDTH (1024)
+#define WINDOW_HEIGHT (768)
+
 //임시 테스트용
 void DrawAxis() {
 
-    const static float length = 500;
+    const static float length = 1000;
 
     glPushMatrix();
     glPushAttrib(GL_CURRENT_BIT);
 
     glLineWidth(2.0f);
 
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glBegin(GL_LINES);
     //x
     glColor4f(1, 0, 0, 1);
@@ -46,18 +51,33 @@ void DrawAxis() {
     glColor4f(0, 0, 1, 1);
     glVertex3f(0, 0, -length/2);
     glVertex3f(0, 0, length/2);
-    
+
     glEnd();
 
     glPopAttrib();
     glPopMatrix();
 }
 
-int main(void) {
-    const int w = 1024, h = 768;
+void Init() {
+    glfwSetWindowTitle("Project Akari");
 
-    //
-    Terrain terr(512, 512, 0);
+    //Init setting
+    glEnable (GL_DEPTH_TEST);
+    glClearColor(1, 1, 1, 1);
+    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    //원근 투영
+    glm::mat4 per_mat = glm::perspective(45.0f, (float)(WINDOW_WIDTH)/(WINDOW_HEIGHT), 0.1f, 100.0f);
+    glLoadMatrixf((GLfloat*)&per_mat);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+}
+
+int main(void) {
+
+    akari::Terrain terr(512, 512, 0);
+    akari::Camera camera;
 
     int running = GL_TRUE;
     // Initialize GLFW
@@ -66,30 +86,21 @@ int main(void) {
     }
 
     // Open an OpenGL window 
-    if( !glfwOpenWindow( w, h, 0, 0, 0, 0, 0, 0, GLFW_WINDOW ) ) {
+    if( !glfwOpenWindow( WINDOW_WIDTH, WINDOW_HEIGHT, 0, 0, 0, 0, 0, 0, GLFW_WINDOW ) ) {
         glfwTerminate(); 
         exit( EXIT_FAILURE ); 
     }
-    glfwSetWindowTitle("Project Akari");
 
-    //Init setting
-    glEnable (GL_DEPTH_TEST);
-    glClearColor(1, 1, 1, 1);
-    glViewport(0, 0, w, h);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    //직교 투영
-    //glOrtho(-1, 1, -1, 1, 1, 1000);
-    //원근 투영
-    glFrustum(-1, 1, -1, 1, 1, 1000);
-    glMatrixMode(GL_MODELVIEW);
+    Init();    
     
     // Main loop 
     while( running ) {
         // OpenGL rendering goes here... 
         glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
         glLoadIdentity();
-        gluLookAt(2, 2, 2, 0, 0, 0, 0, 1, 0);
+
+        camera.Update();
+		terr.Update(camera.GetEye(),camera.GetLookAt());
 
         terr.Draw(0);
         DrawAxis();
@@ -98,8 +109,13 @@ int main(void) {
 
         // Swap front and back rendering buffers 
         glfwSwapBuffers();
+
         // Check if ESC key was pressed or window was closed 
         running = !glfwGetKey( GLFW_KEY_ESC ) && glfwGetWindowParam( GLFW_OPENED );
+
+//		if(glfwGetMouseButton(GLFW_MOUSE_BUTTON_LEFT))
+//			terr.Click(camera.GetEye(),camera.GetLookAt());
+
     }
     // Close window and terminate GLFW 
     glfwTerminate();
