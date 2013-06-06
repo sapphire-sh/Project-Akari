@@ -118,7 +118,7 @@ void Terrain::Draw(float elapsed) {
     glDrawElements(GL_LINES, diagonal_index_list_.size() * 2, GL_UNSIGNED_INT, &diagonal_index_list_[0]);
 	glDisableClientState(GL_COLOR_ARRAY);
 
-	glLineWidth(0.5);
+	glLineWidth(10);
     glColor4f(1, 0, 0, 1);
 //	glPointSize(100);
     glDrawElements(GL_LINES, selected_index_list_.size() * 2, GL_UNSIGNED_INT, &selected_index_list_[0]);
@@ -129,13 +129,14 @@ void Terrain::Draw(float elapsed) {
 }
 
 glm::vec3 findPlane(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3) {
+//	glm::cross(p1 - p2, p2 - p3
 	return glm::vec3((p2.y*p3.z - p2.z*p3.y) + p1.y*(p2.z - p3.z) + p1.z *(p3.y - p2.y),
 			p1.x*(p3.z - p2.z) + (p2.z*p3.x - p2.x*p3.z) + p1.z *(p2.x - p3.x),
 			p1.x*(p2.y - p3.y) + p1.y*(p3.x - p2.x) + (p2.x*p3.y - p2.y*p3.x));
 }
 
-float Terrain::isMet(glm::vec3 eye, glm::vec3 lookat, glm::vec3 plane) {
-	return (1.0f - plane.x*eye.x - plane.y*eye.y - plane.z*eye.z) / (plane.x * (lookat.x-eye.x)+plane.y * (lookat.y-eye.y) + plane.z * (lookat.z - eye.z));
+float Terrain::isMet(glm::vec3 eye, glm::vec3 lookat, glm::vec3 plane, float d) {
+	return (d - plane.x*eye.x - plane.y*eye.y - plane.z*eye.z) / (plane.x * (lookat.x-eye.x)+plane.y * (lookat.y-eye.y) + plane.z * (lookat.z - eye.z));
 }
 
 bool Terrain::isInTriangle(glm::vec3 point, glm::vec3 A, glm::vec3 B, glm::vec3 C) {
@@ -172,9 +173,15 @@ void Terrain::setStartEnd (int *start, int *end,glm::vec3 eye, glm::vec3 lookat)
 void Terrain::setQueue(int *start, int *end, int *queue, int *cnt) {
 	int delta[2],j;
 	float temp;
-	*cnt=1;
-	queue[0]=start[0];
-	queue[1]=start[1];
+	bool chk=false;
+	*cnt=0;
+	if((start[0]<0&&end[0]<0)||(start[0]>=width-2&&end[0]>=width-2)||(start[1]<0&&end[1]<0)||(start[1]>=height-2&&end[1]>=height-2))
+		return;
+	if(start[0]>0&&start[0]<width-1&&start[1]>0&&start[1]<height-1) {
+		queue[0]=start[0];
+		queue[1]=start[1];
+		*cnt+=1;
+	}
 
 	if(start[0]<end[0])
 		delta[0]=1;
@@ -186,16 +193,35 @@ void Terrain::setQueue(int *start, int *end, int *queue, int *cnt) {
 		delta[1]=-1;
 
 	j=start[1];
-	for(int i=start[0];i>=0&&i<width;) {
+	for(int i=start[0];;) {
 		i+=delta[0];
-		temp = (1.0f * (end[1]-start[1]))/(end[0]-start[0]) * (i-start[0]) + start[1];
-		while((temp-j)*delta[1]>0) {
-			j+=delta[1];
+		if(i>=0&&i<width-1&&j>=0&&j<height-1&&!chk)
+			chk=true;
+		if((i<0||i==width-1)&&chk)
+			break;
+		if(chk) {
 			queue[*cnt*2]=i;
 			queue[*cnt*2+1]=j;
 			*cnt+=1;
 		}
+		temp = (1.0f * (end[1]-start[1]))/(end[0]-start[0]) * (i-start[0]) + start[1];
+		while((temp-j)*delta[1]>0) {
+			j+=delta[1];
+			if(i>=0&&i<width-1&&j>=0&&j<height-1&&!chk)
+				chk=true;
+			if((j<0||j==height-1)&&chk)
+				break;
+			if(chk) {
+				queue[*cnt*2]=i;
+				queue[*cnt*2+1]=j;
+				*cnt+=1;
+			}
+		}
+		if((j<0||j==height-1)&&chk)
+			break;
 	}
+	if(end[0]<0||end[0]>=width-1||end[1]<0||end[1]>=height-1)
+		return;
 	queue[*cnt*2]=end[0];
 	queue[*cnt*2+1]=end[1];
 	*cnt+=1;
@@ -220,12 +246,14 @@ void Terrain::Update(glm::vec3 eye, glm::vec3 lookat) {
 	for(int k=0;k<cnt;k++) {
 		i = queue[k*2];
 		j = queue[k*2+1];
+//	for(i=0;i<width-1;i++) { for(j=0;j<height-1;j++) {
 		tri[0] = vertex_list_[i * height + j];
 		tri[1] = vertex_list_[i * height + j + 1];
-		tri[2] = vertex_list_[i * height + j + 2];
-		plane = findPlane(tri[0], tri[1], tri[2]);
-		if((temp=isMet(eye,lookat,plane))>0) {
-			point = eye + lookat * temp;
+		tri[2] = vertex_list_[(i+1) * height + j];
+		plane = glm::cross(tri[2]-tri[0],tri[1]-tri[0]);
+		if((temp=isMet(eye,lookat,plane,glm::dot(plane,tri[0])))>0) {
+			point = eye + (lookat-eye) * temp;
+
 			if(isInTriangle(point, tri[0], tri[1], tri[2])) {
 				selectedX = i;
 				selectedY = j;
@@ -235,14 +263,15 @@ void Terrain::Update(glm::vec3 eye, glm::vec3 lookat) {
 
 		tri[0] = vertex_list_[(i + 1) * height + j + 1];
 		plane = findPlane(tri[0], tri[1], tri[2]);
-		if((temp=isMet(eye,lookat,plane))>0) {
-			point = eye + lookat * temp;
+		if((temp=isMet(eye,lookat,plane,glm::dot(plane,tri[0])))>0) {
+			point = eye + (lookat-eye) * temp;
 			if(isInTriangle(point, tri[0], tri[1], tri[2])) {
 				selectedX = i;
 				selectedY = j;
 				break;
 			}
 		}
+//}}
 	}
 
 	if(selectedX>=0&&selectedX<width-1&&selectedY>=0&&selectedY<height-1) {

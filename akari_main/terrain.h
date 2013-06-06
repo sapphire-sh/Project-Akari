@@ -26,7 +26,7 @@ public:
 public:
     void Draw(float elapsed);
 	void Update(glm::vec3 eye, glm::vec3 lookat);
-	float isMet(glm::vec3 eye, glm::vec3 lookat, glm::vec3 plane);
+	float isMet(glm::vec3 eye, glm::vec3 lookat, glm::vec3 plane, float d);
 	bool isInTriangle(glm::vec3 point, glm::vec3 A, glm::vec3 B, glm::vec3 C);
 	void setStartEnd (int *start, int *end,glm::vec3 eye, glm::vec3 lookat);
 	void setQueue(int *start, int *end, int *queue, int *cnt);
