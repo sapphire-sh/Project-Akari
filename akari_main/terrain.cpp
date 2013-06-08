@@ -237,6 +237,8 @@ void Terrain::Update(glm::vec3 eye, glm::vec3 lookat) {
 		for(int l=0;l<5;l++) {
 			i = queue[k*2] + m[l][0];
 			j = queue[k*2+1] + m[l][1];
+			i = queue[k*2];
+			j = queue[k*2+1];
 			if(i<0||i>width-2||j<0||j>height-2)
 				continue;
 			tri[0] = vertex_list_[i * height + j];
@@ -278,4 +280,11 @@ void Terrain::Update(glm::vec3 eye, glm::vec3 lookat) {
 	}
 
 	delete queue;
+}
+
+void Terrain::Click() {
+	vertex_list_[selected_index_list_[0]._1].y+=0.1f;
+	vertex_list_[selected_index_list_[1]._1].y+=0.1f;
+	vertex_list_[selected_index_list_[2]._1].y+=0.1f;
+	vertex_list_[selected_index_list_[3]._1].y+=0.1f;
 }

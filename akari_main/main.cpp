@@ -113,8 +113,8 @@ int main(void) {
         // Check if ESC key was pressed or window was closed 
         running = !glfwGetKey( GLFW_KEY_ESC ) && glfwGetWindowParam( GLFW_OPENED );
 
-//		if(glfwGetMouseButton(GLFW_MOUSE_BUTTON_LEFT))
-//			terr.Click(camera.GetEye(),camera.GetLookAt());
+		if(glfwGetMouseButton(GLFW_MOUSE_BUTTON_LEFT))
+			terr.Click();
 
     }
     // Close window and terminate GLFW 
