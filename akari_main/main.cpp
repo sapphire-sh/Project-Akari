@@ -76,7 +76,7 @@ void Init() {
 
 int main(void) {
 
-    akari::Terrain terr(512, 512);
+    akari::Terrain terr(512, 512, 0);
     akari::Camera camera;
 
     //test font
@@ -107,6 +107,7 @@ int main(void) {
         glLoadIdentity();
 
         camera.Update();
+		terr.Update(camera.GetEye(),camera.GetLookAt());
 
         terr.Draw(0);
         DrawAxis();
@@ -122,8 +123,13 @@ int main(void) {
 
         // Swap front and back rendering buffers 
         glfwSwapBuffers();
+
         // Check if ESC key was pressed or window was closed 
         running = !glfwGetKey( GLFW_KEY_ESC ) && glfwGetWindowParam( GLFW_OPENED );
+
+		if(glfwGetMouseButton(GLFW_MOUSE_BUTTON_LEFT))
+			terr.Click();
+
     }
     // Close window and terminate GLFW 
     glfwTerminate();
