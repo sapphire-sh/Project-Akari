@@ -8,6 +8,9 @@
 //GLFW
 #include <GL/glfw.h>
 
+//FTGL
+#include <FTGL/ftgl.h>
+
 //GL Math Library ; glm
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
