@@ -90,6 +90,15 @@ Terrain::Terrain(int _width, int _height, int _depth) {
 	selected_index_list_[2]._2 = (width/2 + 1) * height + height/2;
 	selected_index_list_[3]._1 = (width/2 + 1) * height + height/2;
 	selected_index_list_[3]._2 = (width/2) * height + height/2;
+
+	selected_index_list_[0]._1 = 0 * height + 0;
+	selected_index_list_[0]._2 = 0 * height + 0 + 1;
+	selected_index_list_[1]._1 = (0) * height + 0 + 1;
+	selected_index_list_[1]._2 = (0 + 1) * height + 0 + 1;
+	selected_index_list_[2]._1 = (0 + 1) * height + 0 + 1;
+	selected_index_list_[2]._2 = (0 + 1) * height + 0;
+	selected_index_list_[3]._1 = (0 + 1) * height + 0;
+	selected_index_list_[3]._2 = (0) * height + 0;
 }
 
 Terrain::~Terrain() {
@@ -113,14 +122,12 @@ void Terrain::Draw(float elapsed) {
 	
 	glEnableClientState(GL_COLOR_ARRAY);
 	glColorPointer(4, GL_FLOAT, 0, &diagonal_color_list_[0]);
-//	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glLineWidth(0.5);
     glDrawElements(GL_LINES, diagonal_index_list_.size() * 2, GL_UNSIGNED_INT, &diagonal_index_list_[0]);
 	glDisableClientState(GL_COLOR_ARRAY);
 
 	glLineWidth(10);
     glColor4f(1, 0, 0, 1);
-//	glPointSize(100);
     glDrawElements(GL_LINES, selected_index_list_.size() * 2, GL_UNSIGNED_INT, &selected_index_list_[0]);
 
 	glDisableClientState(GL_VERTEX_ARRAY);
@@ -129,7 +136,6 @@ void Terrain::Draw(float elapsed) {
 }
 
 glm::vec3 findPlane(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3) {
-//	glm::cross(p1 - p2, p2 - p3
 	return glm::vec3((p2.y*p3.z - p2.z*p3.y) + p1.y*(p2.z - p3.z) + p1.z *(p3.y - p2.y),
 			p1.x*(p3.z - p2.z) + (p2.z*p3.x - p2.x*p3.z) + p1.z *(p2.x - p3.x),
 			p1.x*(p2.y - p3.y) + p1.y*(p3.x - p2.x) + (p2.x*p3.y - p2.y*p3.x));
@@ -143,13 +149,13 @@ bool Terrain::isInTriangle(glm::vec3 point, glm::vec3 A, glm::vec3 B, glm::vec3 
 	glm::vec3 temp, temp2, line1, line2, line3;
 	temp = B - A;
 	temp2 = point - A;
-	line1 = glm::vec3(temp.y*temp2.z - temp.z *temp2.y,temp.z*temp2.x - temp.x *temp2.z,temp.x*temp2.y - temp.y *temp2.x);
+	line1 = glm::cross(temp,temp2);
 	temp = C - B;
 	temp2 = point - B;
-	line2 = glm::vec3(temp.y*temp2.z - temp.z *temp2.y,temp.z*temp2.x - temp.x *temp2.z,temp.x*temp2.y - temp.y *temp2.x);
+	line2 = glm::cross(temp,temp2);
 	temp = A - C;
 	temp2 = point - C;
-	line3 = glm::vec3(temp.y*temp2.z - temp.z *temp2.y,temp.z*temp2.x - temp.x *temp2.z,temp.x*temp2.y - temp.y *temp2.x);
+	line3 = glm::cross(temp,temp2);
 
 	if(line1.x*line2.x>=0&&line2.x*line3.x>=0&&line3.x*line1.x>=0) {
 		if(line1.y*line2.y>=0&&line2.y*line3.y>=0&&line3.y*line1.y>=0) {
@@ -164,20 +170,17 @@ bool Terrain::isInTriangle(glm::vec3 point, glm::vec3 A, glm::vec3 B, glm::vec3 
 }
 
 void Terrain::setStartEnd (int *start, int *end,glm::vec3 eye, glm::vec3 lookat) {
-	start[0]=eye.x * 10 + width/2;
-	start[1]=eye.y * 10 + height/2;
-	end[0]=lookat.x * 10 + width/2;;
-	end[1]=lookat.y * 10 + height/2;
+	start[0]=eye.z * 10 + width/2;
+	start[1]=eye.x * 10 + height/2;
+	end[0]=lookat.z * 10 + width/2;;
+	end[1]=lookat.x * 10 + height/2;
 }
 
 void Terrain::setQueue(int *start, int *end, int *queue, int *cnt) {
 	int delta[2],j;
 	float temp;
-	bool chk=false;
 	*cnt=0;
-	if((start[0]<0&&end[0]<0)||(start[0]>=width-2&&end[0]>=width-2)||(start[1]<0&&end[1]<0)||(start[1]>=height-2&&end[1]>=height-2))
-		return;
-	if(start[0]>0&&start[0]<width-1&&start[1]>0&&start[1]<height-1) {
+	if(start[0]>=0&&start[0]<width-1&&start[1]>=0&&start[1]<height-1) {
 		queue[0]=start[0];
 		queue[1]=start[1];
 		*cnt+=1;
@@ -194,12 +197,10 @@ void Terrain::setQueue(int *start, int *end, int *queue, int *cnt) {
 
 	j=start[1];
 	for(int i=start[0];;) {
-		i+=delta[0];
-		if(i>=0&&i<width-1&&j>=0&&j<height-1&&!chk)
-			chk=true;
-		if((i<0||i==width-1)&&chk)
+		if((i<0&&i+delta[0]<i)||(i>width-2&&i+delta[0]>i)||(j<0&&j+delta[1]<j)||(j>height-2&&j+delta[1]>j))
 			break;
-		if(chk) {
+		i+=delta[0];
+		if(i>=0&&i<width-1&&j>=0&&j<height-1) {
 			queue[*cnt*2]=i;
 			queue[*cnt*2+1]=j;
 			*cnt+=1;
@@ -207,18 +208,12 @@ void Terrain::setQueue(int *start, int *end, int *queue, int *cnt) {
 		temp = (1.0f * (end[1]-start[1]))/(end[0]-start[0]) * (i-start[0]) + start[1];
 		while((temp-j)*delta[1]>0) {
 			j+=delta[1];
-			if(i>=0&&i<width-1&&j>=0&&j<height-1&&!chk)
-				chk=true;
-			if((j<0||j==height-1)&&chk)
-				break;
-			if(chk) {
+			if(i>=0&&i<width-1&&j>=0&&j<height-1) {
 				queue[*cnt*2]=i;
 				queue[*cnt*2+1]=j;
 				*cnt+=1;
 			}
 		}
-		if((j<0||j==height-1)&&chk)
-			break;
 	}
 	if(end[0]<0||end[0]>=width-1||end[1]<0||end[1]>=height-1)
 		return;
@@ -226,52 +221,49 @@ void Terrain::setQueue(int *start, int *end, int *queue, int *cnt) {
 	queue[*cnt*2+1]=end[1];
 	*cnt+=1;
 }
-/*
-void setVec3(glm::vec3 *vector, int _x, int _y, int _z) {
-	vector -> x = _x;
-	vector -> y = _y;
-	vector -> z = _z;
-}*/
 
 void Terrain::Update(glm::vec3 eye, glm::vec3 lookat) {
 	glm::vec3 tri[3];
 	glm::vec3 plane, point;
 	float temp;
 	int start[2],end[2],i, j, *queue, cnt, selectedX, selectedY;
+	int m[5][2] ={{0,0},{0,1},{0,-1},{1,0},{-1,0}};
 
 	queue = (int*)malloc(sizeof(int)*(width*height)*2);
 	setStartEnd(start,end,eye,lookat);
 	setQueue(start,end,queue,&cnt);
 
 	for(int k=0;k<cnt;k++) {
-		i = queue[k*2];
-		j = queue[k*2+1];
-//	for(i=0;i<width-1;i++) { for(j=0;j<height-1;j++) {
-		tri[0] = vertex_list_[i * height + j];
-		tri[1] = vertex_list_[i * height + j + 1];
-		tri[2] = vertex_list_[(i+1) * height + j];
-		plane = glm::cross(tri[2]-tri[0],tri[1]-tri[0]);
-		if((temp=isMet(eye,lookat,plane,glm::dot(plane,tri[0])))>0) {
-			point = eye + (lookat-eye) * temp;
+		for(int l=0;l<5;l++) {
+			i = queue[k*2] + m[l][0];
+			j = queue[k*2+1] + m[l][1];
+			if(i<0||i>width-2||j<0||j>height-2)
+				continue;
+			tri[0] = vertex_list_[i * height + j];
+			tri[1] = vertex_list_[i * height + j + 1];
+			tri[2] = vertex_list_[(i+1) * height + j];
+			plane = glm::cross(tri[2]-tri[0],tri[1]-tri[0]);
+			if((temp=isMet(eye,lookat,plane,glm::dot(plane,tri[0])))>0) {
+				point = eye + (lookat-eye) * temp;
 
-			if(isInTriangle(point, tri[0], tri[1], tri[2])) {
-				selectedX = i;
-				selectedY = j;
-				break;
+				if(isInTriangle(point, tri[0], tri[1], tri[2])) {
+					selectedX = i;
+					selectedY = j;
+					break;
+				}
+			}
+
+			tri[0] = vertex_list_[(i + 1) * height + j + 1];
+			plane = findPlane(tri[0], tri[1], tri[2]);
+			if((temp=isMet(eye,lookat,plane,glm::dot(plane,tri[0])))>0) {
+				point = eye + (lookat-eye) * temp;
+				if(isInTriangle(point, tri[0], tri[1], tri[2])) {
+					selectedX = i;
+					selectedY = j;
+					break;
+				}
 			}
 		}
-
-		tri[0] = vertex_list_[(i + 1) * height + j + 1];
-		plane = findPlane(tri[0], tri[1], tri[2]);
-		if((temp=isMet(eye,lookat,plane,glm::dot(plane,tri[0])))>0) {
-			point = eye + (lookat-eye) * temp;
-			if(isInTriangle(point, tri[0], tri[1], tri[2])) {
-				selectedX = i;
-				selectedY = j;
-				break;
-			}
-		}
-//}}
 	}
 
 	if(selectedX>=0&&selectedX<width-1&&selectedY>=0&&selectedY<height-1) {
