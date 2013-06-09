@@ -123,7 +123,6 @@ int main(void) {
         if(glfwGetKey('M') == GLFW_RELEASE) {
             is_rotating_pressing_ = false;
         }
-
         //File Open
         if(glfwGetKey('O') == GLFW_PRESS) {
             GetOpenFileName(&ofn);
