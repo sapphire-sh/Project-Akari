@@ -45,6 +45,26 @@ int main(void) {
     akari::Camera camera;
     akari::InfoUI info_ui;
 
+    //file open/save dialog
+    OPENFILENAME ofn ;
+
+    wchar_t szFile[260];
+    
+    ZeroMemory(&ofn , sizeof(ofn));
+    ofn.lStructSize = sizeof (ofn);
+    ofn.hwndOwner = NULL;
+    ofn.lpstrFile = szFile;
+    ofn.lpstrFile[0] = '\0';
+    ofn.nMaxFile = sizeof(szFile);
+    ofn.lpstrFilter = NULL;
+    ofn.nFilterIndex = 1;
+    ofn.lpstrFileTitle = NULL;
+    ofn.nMaxFileTitle = 0;
+    ofn.lpstrInitialDir= NULL;
+    ofn.Flags = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST;
+
+
+
     //temp input managing
     bool is_rotating_ = false;
     bool is_rotating_pressing_ = false;
@@ -104,6 +124,16 @@ int main(void) {
             is_rotating_pressing_ = false;
         }
 
+        //File Open
+        if(glfwGetKey('O') == GLFW_PRESS) {
+            GetOpenFileName(&ofn);
+            MessageBox ( NULL , ofn.lpstrFile , L"Open File" , MB_OK);
+        }
+
+        if(glfwGetKey('P') == GLFW_PRESS) {
+            GetSaveFileName(&ofn);
+            MessageBox ( NULL , ofn.lpstrFile , L"Save File" , MB_OK);
+        }
     }
     // Close window and terminate GLFW 
     glfwTerminate();

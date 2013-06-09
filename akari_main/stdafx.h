@@ -24,6 +24,10 @@
 #include <string>
 #include <sstream>
 
+//Windows API
+//#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+
 #define WINDOW_WIDTH (1024)
 #define WINDOW_HEIGHT (768)
 
