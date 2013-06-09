@@ -14,9 +14,9 @@ Terrain::Terrain(int _width, int _height, int _depth) {
     plane_index_list_.resize((_width - 1) * (_height - 1) * 2);
 	outline_index_list_.resize((_width - 1) * (_height - 1) * 2);
 	diagonal_index_list_.resize((_width - 1) * (_height - 1));
-	diagonal_color_list_.resize((_width - 1) * (_height - 1) * 2);
+	diagonal_color_list_.resize(_width * _height);
 	selected_index_list_.resize(4);
-	plane_color_list_.resize((_width - 1) * (_height - 1) * 6);
+	plane_color_list_.resize(_width * _height);
 
     int idx = 0;
     for(int h=0; h<_height; ++h) {
@@ -30,6 +30,21 @@ Terrain::Terrain(int _width, int _height, int _depth) {
             vertex_list_[idx].x = (-(_width/2) + w) * 0.1f;
             vertex_list_[idx].y = (float) _depth;
             vertex_list_[idx].z = (-(_height/2) + h) * 0.1f;
+			
+			plane_color_list_[idx]._red = 0.0f;
+			plane_color_list_[idx]._green = 0.5f*0.5f*((w%2)+(h%2));
+			plane_color_list_[idx]._blue = 0.0f;
+			plane_color_list_[idx]._alpha = 1.0f;
+
+			diagonal_color_list_[idx]._red = 0.0f;
+			diagonal_color_list_[idx]._green = 0.5f*0.5f*((w%2)+(h%2));
+			diagonal_color_list_[idx]._blue = 0.0f;
+			diagonal_color_list_[idx]._alpha = 1.0f;
+
+			diagonal_color_list_[idx]._red = 0.5f;
+			diagonal_color_list_[idx]._green = 0.5f;
+			diagonal_color_list_[idx]._blue = 0.5f;
+			diagonal_color_list_[idx]._alpha = 1.0f;
 			idx++;
         }
     }
@@ -46,11 +61,6 @@ Terrain::Terrain(int _width, int _height, int _depth) {
 			outline_index_list_[idx]._1 = h * _width + w;
             outline_index_list_[idx]._2 = (h + 1) * _width + w;
 
-			//diagonal color
-			diagonal_color_list_[idx]._red = 0.0f;
-			diagonal_color_list_[idx]._green = 0.5f*0.25f*(w%2)*(h%2);
-			diagonal_color_list_[idx]._blue = 0.0f;
-			diagonal_color_list_[idx]._alpha = 1.0f;
 
 			idx++;
 
@@ -62,12 +72,6 @@ Terrain::Terrain(int _width, int _height, int _depth) {
 			//outline index
 			outline_index_list_[idx]._1 = h * _width + w;
             outline_index_list_[idx]._2 = h * _width + (w + 1);
-
-			//diagonal_color
-			diagonal_color_list_[idx]._red = 0.0f;
-			diagonal_color_list_[idx]._green = 0.5f*0.25f*(w%2)*(h%2);
-			diagonal_color_list_[idx]._blue = 0.0f;
-			diagonal_color_list_[idx]._alpha = 1.0f;
 
 			idx++;
         }
@@ -81,32 +85,6 @@ Terrain::Terrain(int _width, int _height, int _depth) {
 			idx++;
         }
     }
-	idx=0;
-	for(int h=0;h<_height-1;++h) {
-		for(int w=0;w<_width-1;++w) {
-			//plane color
-			plane_color_list_[idx]._red = 0.0f;
-			plane_color_list_[idx]._green = 0.5f*0.25f*(w%2)*(h%2);
-			plane_color_list_[idx]._blue = 0.0f;
-			plane_color_list_[idx]._alpha = 1.0f;
-
-			idx++;
-			//plane color
-			plane_color_list_[idx]._red = 0.0f;
-			plane_color_list_[idx]._green = 0.5f*0.25f*(w%2)*(h%2);
-			plane_color_list_[idx]._blue = 0.0f;
-			plane_color_list_[idx]._alpha = 1.0f;
-
-			idx++;
-			//plane color
-			plane_color_list_[idx]._red = 0.0f;
-			plane_color_list_[idx]._green = 0.5f*0.25f*(w%2)*(h%2);
-			plane_color_list_[idx]._blue = 0.0f;
-			plane_color_list_[idx]._alpha = 1.0f;
-
-			idx++;
-		}
-	}
 
 
 	selected_index_list_[0]._1 = (width/2) * height + height/2;
@@ -117,15 +95,6 @@ Terrain::Terrain(int _width, int _height, int _depth) {
 	selected_index_list_[2]._2 = (width/2 + 1) * height + height/2;
 	selected_index_list_[3]._1 = (width/2 + 1) * height + height/2;
 	selected_index_list_[3]._2 = (width/2) * height + height/2;
-
-	selected_index_list_[0]._1 = 0 * height + 0;
-	selected_index_list_[0]._2 = 0 * height + 0 + 1;
-	selected_index_list_[1]._1 = (0) * height + 0 + 1;
-	selected_index_list_[1]._2 = (0 + 1) * height + 0 + 1;
-	selected_index_list_[2]._1 = (0 + 1) * height + 0 + 1;
-	selected_index_list_[2]._2 = (0 + 1) * height + 0;
-	selected_index_list_[3]._1 = (0 + 1) * height + 0;
-	selected_index_list_[3]._2 = (0) * height + 0;
 }
 
 Terrain::~Terrain() {
@@ -140,6 +109,7 @@ void Terrain::Draw(float elapsed) {
 	
 	glEnableClientState(GL_COLOR_ARRAY);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glShadeModel(GL_SMOOTH);
 	glColorPointer(4, GL_FLOAT, 0, &plane_color_list_[0]);
     glLineWidth(0);
 //    glColor4f(0.5, 0.5, 0.5, 1);
@@ -151,6 +121,7 @@ void Terrain::Draw(float elapsed) {
     glDrawElements(GL_LINES, outline_index_list_.size() * 2, GL_UNSIGNED_INT, &outline_index_list_[0]);
 	
 	glEnableClientState(GL_COLOR_ARRAY);
+	glShadeModel(GL_FLAT);
 	glColorPointer(4, GL_FLOAT, 0, &diagonal_color_list_[0]);
     glLineWidth(0.5);
     glDrawElements(GL_LINES, diagonal_index_list_.size() * 2, GL_UNSIGNED_INT, &diagonal_index_list_[0]);
@@ -330,19 +301,18 @@ void Terrain::Click() {
 		tri[2] = vertex_list_[(x+1) * height + y];
 		plane = glm::cross(tri[2]-tri[0],tri[1]-tri[0]);
 		temp = glm::dot(plane,tri[0])-glm::dot(vertex_list_[(x+1) * height + y+1],plane);
-		idx=2*(y*(width-1)+x);
-	
-		if(temp*temp<0.000000000001f) {
+		
+		idx=(y+1)*width+x+1;
+		if(temp<0.00000001f&&temp>-0.00000001f) {
 			//plane color
 			diagonal_color_list_[idx]._red = 0.0f;
 			diagonal_color_list_[idx]._green = 0.5f*0.25f*(x%2)*(y%2);
 			diagonal_color_list_[idx]._blue = 0.0f;
 			diagonal_color_list_[idx]._alpha = 1.0f;
-			idx++;
-			//plane color
-			diagonal_color_list_[idx]._red = 0.0f;
-			diagonal_color_list_[idx]._green = 0.5f*0.25f*(x%2)*(y%2);
-			diagonal_color_list_[idx]._blue = 0.0f;
+
+			diagonal_color_list_[idx]._red = 0.5f;
+			diagonal_color_list_[idx]._green = 0.5f;
+			diagonal_color_list_[idx]._blue = 0.5f;
 			diagonal_color_list_[idx]._alpha = 1.0f;
 		}
 		else {
@@ -351,12 +321,6 @@ void Terrain::Click() {
 			diagonal_color_list_[idx]._green = 0.5f;
 			diagonal_color_list_[idx]._blue = 0.5f;
 			diagonal_color_list_[idx]._alpha = 1.0f;
-			idx++;
-			//plane color
-			diagonal_color_list_[idx]._red = 0.5f;
-			diagonal_color_list_[idx]._green = 0.5f;
-			diagonal_color_list_[idx]._blue = 0.5f;
-			diagonal_color_list_[idx]._alpha = 0.5f;
 		}
 	}
 }
