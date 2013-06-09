@@ -101,9 +101,10 @@ Terrain::~Terrain() {
 
 }
 
-void Terrain::Draw(float elapsed) {
+void Terrain::Draw(float elapsed, bool is_rotating = false) {
     glPushMatrix();
     glPushAttrib(GL_CURRENT_BIT);
+
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glVertexPointer(3, GL_FLOAT, 0, &vertex_list_[0]);
 	
@@ -127,9 +128,11 @@ void Terrain::Draw(float elapsed) {
     glDrawElements(GL_LINES, diagonal_index_list_.size() * 2, GL_UNSIGNED_INT, &diagonal_index_list_[0]);
 	glDisableClientState(GL_COLOR_ARRAY);
 
-	glLineWidth(10);
-    glColor4f(1, 0, 0, 1);
-    glDrawElements(GL_LINES, selected_index_list_.size() * 2, GL_UNSIGNED_INT, &selected_index_list_[0]);
+    if(!is_rotating) {
+	    glLineWidth(10);
+        glColor4f(1, 0, 0, 1);
+        glDrawElements(GL_LINES, selected_index_list_.size() * 2, GL_UNSIGNED_INT, &selected_index_list_[0]);
+    }
 
 	glDisableClientState(GL_VERTEX_ARRAY);
     glPopAttrib();
@@ -224,6 +227,7 @@ void Terrain::setQueue(int *start, int *end, int *queue, int *cnt) {
 }
 
 void Terrain::Update(glm::vec3 eye, glm::vec3 lookat) {
+
 	glm::vec3 tri[3];
 	glm::vec3 plane, point;
 	float temp;
@@ -323,4 +327,13 @@ void Terrain::Click() {
 			diagonal_color_list_[idx]._alpha = 1.0f;
 		}
 	}
+}
+
+
+const int akari::Terrain::GetWidth() const {
+    return width;
+}
+
+const int akari::Terrain::GetHeight() const {
+    return height;
 }

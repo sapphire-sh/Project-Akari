@@ -41,9 +41,14 @@ void Init() {
 
 int main(void) {
 
-    akari::Terrain terr(10, 10, 0);
+    akari::Terrain terr(100, 100, 0);
     akari::Camera camera;
     akari::InfoUI info_ui;
+
+    //temp input managing
+    bool is_rotating_ = false;
+    bool is_rotating_pressing_ = false;
+
 
     int running = GL_TRUE;
     // Initialize GLFW
@@ -67,11 +72,18 @@ int main(void) {
 
         camera.Update();
 
+        if(is_rotating_) {
+            glRotatef(glfwGetTime() * 75, 0, 1, 0);
+        }
+
 		terr.Update(camera.GetEye(),camera.GetLookAt());
-        terr.Draw(0);
+        terr.Draw(0, is_rotating_);
         
+        info_ui.DrawHelp();
+        info_ui.DrawTerrainInfo(terr);
         info_ui.DrawAxis();
         info_ui.DrawCameraInfo(camera);
+        info_ui.DrawIsRotating(is_rotating_);
 
         glFlush();
 
@@ -81,8 +93,16 @@ int main(void) {
         // Check if ESC key was pressed or window was closed 
         running = !glfwGetKey( GLFW_KEY_ESC ) && glfwGetWindowParam( GLFW_OPENED );
 
-		if(glfwGetMouseButton(GLFW_MOUSE_BUTTON_LEFT))
+		if(glfwGetMouseButton(GLFW_MOUSE_BUTTON_LEFT)) {
 			terr.Click();
+        }
+        if(!is_rotating_pressing_ && glfwGetKey('M') == GLFW_PRESS) {
+            is_rotating_ = !is_rotating_;
+            is_rotating_pressing_ = true;
+        }
+        if(glfwGetKey('M') == GLFW_RELEASE) {
+            is_rotating_pressing_ = false;
+        }
 
     }
     // Close window and terminate GLFW 

@@ -157,6 +157,16 @@ void Camera::Update() {
         SetEye(0, 2, 0);
         SetLookAt(0, 0, 0);
     }
+    //front view
+    if(glfwGetKey('X') == GLFW_PRESS) {
+        SetEye(0, 0, 2);
+        SetLookAt(0, 0, 0);
+    }
+    //quarter view
+    if(glfwGetKey('C') == GLFW_PRESS) {
+        SetEye(1, 1, 1);
+        SetLookAt(0, 0, 0);
+    }
 
     //camera apply
     gluLookAt(eye_.x, eye_.y, eye_.z, lookat_.x, lookat_.y, lookat_.z, up_.x, up_.y, up_.z);

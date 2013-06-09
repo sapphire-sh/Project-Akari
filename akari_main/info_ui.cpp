@@ -2,8 +2,10 @@
 #include "stdafx.h"
 #include "info_ui.h"
 #include "camera.h"
+#include "terrain.h"
 
 using akari::InfoUI;
+using akari::Terrain;
 
 InfoUI::InfoUI() {
     font_.reset(new FTGLPixmapFont("../res/font/NanumGothic.ttf"));
@@ -23,7 +25,7 @@ void InfoUI::DrawCameraInfo(const akari::Camera &camera) {
     glPixelTransferf(GL_RED_BIAS, -1.0f);
     glPixelTransferf(GL_BLUE_BIAS, -1.0f);
     font_->FaceSize(24);
-    FTPoint end_pos = font_->Render("Camera Pos : ", -1, FTPoint(0, WINDOW_HEIGHT - 24));
+    FTPoint end_pos = font_->Render("Camera Pos : ", -1, FTPoint(8, WINDOW_HEIGHT - 24));
 
     //camera position
     camera_pos_.str("");
@@ -63,4 +65,30 @@ void InfoUI::DrawAxis() {
 
     glPopAttrib();
     glPopMatrix();
+}
+
+void akari::InfoUI::DrawIsRotating(bool is_rotating) {
+    FTPoint end_pos = font_->Render("Rotate : ", -1, FTPoint(8, WINDOW_HEIGHT - 48));
+    if(is_rotating) {
+        font_->Render("Y", -1, end_pos);
+    }
+    else {
+        font_->Render("N", -1, end_pos);
+    }
+}
+
+void akari::InfoUI::DrawHelp() {
+    font_->FaceSize(15);
+    font_->Render("Z : Top View", -1, FTPoint(8, 60));
+    font_->Render("X : Front View", -1, FTPoint(8, 45));
+    font_->Render("C : Quarter View", -1, FTPoint(8, 30));
+    font_->Render("M : Rotate", -1, FTPoint(8, 15));
+}
+
+void akari::InfoUI::DrawTerrainInfo(const akari::Terrain &terrain) {
+    font_->FaceSize(24);
+    FTPoint end_pos = font_->Render("Terrain Size : ", -1, FTPoint(8, WINDOW_HEIGHT - 72));
+    terrain_size_.str("");
+    terrain_size_ << terrain.GetWidth() << " x " << terrain.GetHeight();
+    font_->Render(terrain_size_.str().c_str(), -1, end_pos);
 }
