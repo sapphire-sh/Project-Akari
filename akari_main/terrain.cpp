@@ -337,3 +337,9 @@ const int akari::Terrain::GetWidth() const {
 const int akari::Terrain::GetHeight() const {
     return height;
 }
+
+//0 <= w < width, 0 <= h < height
+//격자 수 x 점 수 o
+const float akari::Terrain::GetDepth(int w, int h) const {
+    return vertex_list_[width * h + w].y;
+}

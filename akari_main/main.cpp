@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include "terrain.h"
 #include "camera.h"
+#include "bitmap.h"
 #include "info_ui.h"
 
 /*
@@ -41,9 +42,10 @@ void Init() {
 
 int main(void) {
 
-    akari::Terrain terr(100, 100, 0);
+    akari::Terrain terr(50, 50, 0);
     akari::Camera camera;
     akari::InfoUI info_ui;
+    akari::Bitmap bitmap_mgr;
 
     //file open/save dialog
     OPENFILENAME ofn ;
@@ -56,7 +58,7 @@ int main(void) {
     ofn.lpstrFile = szFile;
     ofn.lpstrFile[0] = '\0';
     ofn.nMaxFile = sizeof(szFile);
-    ofn.lpstrFilter = NULL;
+    ofn.lpstrFilter = L"Bitmap File\0*.bmp\0";
     ofn.nFilterIndex = 1;
     ofn.lpstrFileTitle = NULL;
     ofn.nMaxFileTitle = 0;
@@ -125,13 +127,17 @@ int main(void) {
         }
         //File Open
         if(glfwGetKey('O') == GLFW_PRESS) {
-            GetOpenFileName(&ofn);
-            MessageBox ( NULL , ofn.lpstrFile , L"Open File" , MB_OK);
+            if(GetOpenFileName(&ofn)) {
+                bitmap_mgr.ImportBMP(terr, ofn.lpstrFile);
+                MessageBox ( NULL , ofn.lpstrFile , L"Open File" , MB_OK);
+            }
         }
 
         if(glfwGetKey('P') == GLFW_PRESS) {
-            GetSaveFileName(&ofn);
-            MessageBox ( NULL , ofn.lpstrFile , L"Save File" , MB_OK);
+            if(GetSaveFileName(&ofn)) {
+                bitmap_mgr.ExportBMP(terr, ofn.lpstrFile);
+                MessageBox ( NULL , ofn.lpstrFile , L"Saved." , MB_OK);
+            }
         }
     }
     // Close window and terminate GLFW 

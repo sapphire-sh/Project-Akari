@@ -7,8 +7,8 @@ class Terrain;
 
 class Bitmap {
 public:
-	void import(akari::Terrain terr);
-	void export(akari::Terrain terr);
+	void ImportBMP(const akari::Terrain &terr, const wchar_t *path);
+	void ExportBMP(const akari::Terrain &terr, const wchar_t *path);
 };
 
 };
