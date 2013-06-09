@@ -79,6 +79,13 @@ int main(void) {
     akari::Terrain terr(10, 10, 0);
     akari::Camera camera;
 
+    //test font
+    FTGLPixmapFont font("../res/font/NanumGothic.ttf");
+    if(font.Error()) {
+        return -1;
+    }
+    font.FaceSize(36);
+    
     int running = GL_TRUE;
     // Initialize GLFW
     if( !glfwInit() ) {
@@ -104,6 +111,13 @@ int main(void) {
 
         terr.Draw(0);
         DrawAxis();
+
+        glPushAttrib(GL_CURRENT_BIT);
+        //Draw blue text
+        glPixelTransferf(GL_GREEN_BIAS, -1.0f);
+        glPixelTransferf(GL_RED_BIAS, -1.0f);
+        font.Render("Hello World!", -1, FTPoint(0, WINDOW_HEIGHT - 30));
+        glPopAttrib();
 
         glFlush();
 
