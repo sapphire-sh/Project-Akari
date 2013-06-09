@@ -103,7 +103,6 @@ int main(void) {
         if(glfwGetKey('M') == GLFW_RELEASE) {
             is_rotating_pressing_ = false;
         }
-
     }
     // Close window and terminate GLFW 
     glfwTerminate();
