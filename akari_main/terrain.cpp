@@ -337,3 +337,7 @@ const int akari::Terrain::GetWidth() const {
 const int akari::Terrain::GetHeight() const {
     return height;
 }
+
+const int akari::Terrain::GetDepth(int width, int height) const {
+    return vertex_list_[width * height + width].y;
+}

@@ -12,35 +12,38 @@ void import(akari::Terrain terr) {
 
 void export(akari::Terrain terr) {
 	std::ofstream outp;
-	outp.open("export.bmp");
+    outp.open("export.bmp", std::ios::out | std::ios::binary);
 	
 	int width = terr.GetWidth();
 	int height = terr.GetHeight();
 
-	int filesize = 54 + 4 * width * height;
-
-	int header[HEADER_SIZE] = {filesize, 0, 54, 40, width, height, 1572865, 0, 0, 0, 0, 0, 0};
+	char padding = 0x00;
 
 	outp << "BM";
+
+	int filesize = 54 + 4 * 0x100 + (ceil(width / 4) * 4) * height;
+	int header[HEADER_SIZE] = {filesize, 0, 1078, 40, width, height, 524289, 0, 6, 2834, 2834, 0, 0};
+
 	for(int i = 0; i < HEADER_SIZE; ++i) {
 		outp.write((char*) &header[i], sizeof(header[i]));
 	}
 
+	for(int i = 0; i < 0x100; ++i) {
+		for(int j = 0; j < 3; ++j) {
+			outp.write((char*) &i, sizeof(char));
+		}
+		outp.write((char*) &padding, sizeof(padding));
+	}
+
 	for(int i = 0; i < width; ++i) {
 		for(int j = 0; j < height; ++j) {
-			char a = 0xff;
-			char r = 0x7f;
-			char g = 0x01;
-			char b = 0xff;
-			outp.write((char*) &a, sizeof(a));
-			outp.write((char*) &g, sizeof(g));
-			outp.write((char*) &r, sizeof(r));
-			outp.write((char*) &b, sizeof(b));
-			outp.write((char*) &g, sizeof(g));
-			outp.write((char*) &r, sizeof(r));
+			char color = terr.GetDepth(i, j);
+			outp.write((char*) &color, sizeof(char));
+		}
+		for(int j = 0; j < (4 - (width % 4)); ++j) {
+			outp.write((char*) &padding, sizeof(padding));
 		}
 	}
 
 	outp.close();
 }
-

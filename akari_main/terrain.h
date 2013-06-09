@@ -35,6 +35,7 @@ public:
 public:
     const int GetWidth() const;
     const int GetHeight() const;
+	const int GetDepth(int width, int height) const;
 
 private:
     VertexList vertex_list_;
