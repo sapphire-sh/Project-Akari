@@ -81,6 +81,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="bitmap.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="info_ui.cpp" />
     <ClCompile Include="main.cpp" />
@@ -88,6 +89,7 @@
     <ClCompile Include="terrain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="bitmap.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="info_ui.h" />
     <ClInclude Include="stdafx.h" />
