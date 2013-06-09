@@ -66,11 +66,12 @@ int main(void) {
         glLoadIdentity();
 
         camera.Update();
-		terr.Update(camera.GetEye(),camera.GetLookAt());
 
+		terr.Update(camera.GetEye(),camera.GetLookAt());
         terr.Draw(0);
         
         info_ui.DrawAxis();
+        info_ui.DrawCameraInfo(camera);
 
         glFlush();
 

@@ -32,15 +32,21 @@ const glm::vec3 &Camera::GetEye() const {
 }
 
 void Camera::SetLookAt(const glm::vec3 &lookat) {
+
+    const static glm::vec3 y_vec(0, 1, 0);
+    glm::vec3 forward = lookat;
+    forward -= eye_;
+    if(glm::acos(glm::dot(forward, y_vec) / glm::length(forward)) < glm::radians(5.0f)) {
+        return;
+    }
+
     lookat_ = lookat;
     calculateUp();
 }
 
 void Camera::SetLookAt(float x, float y, float z) {
-    lookat_.x = x;
-    lookat_.y = y;
-    lookat_.z = z;
-    calculateUp();
+    glm::vec3 lookat(x, y, z);
+    SetLookAt(lookat);
 }
 
 const glm::vec3 &Camera::GetLookAt() const {
@@ -56,7 +62,16 @@ void Camera::calculateUp() {
     glm::vec3 forward = lookat_;
     forward -= eye_;
     
-    up_ = glm::normalize(glm::cross(glm::cross(forward, y_vec), forward));
+    up_ = glm::cross(glm::cross(forward, y_vec), forward);
+    if(glm::length(up_) < 0.001f) {
+        up_.x = 1;
+        up_.y = 0;
+        up_.z = 0;
+    }
+    else {
+        up_ = glm::normalize(up_);
+    }
+
 }
 
 void Camera::Move(Direction dir) {
@@ -105,10 +120,7 @@ void Camera::Rotate(float roll_rad, float pitch_rad) {
 
     glm::vec4 temp(dir_vec, 0);
     temp = rotate_mat * temp;
-    lookat_.x = eye_.x + temp.x;
-    lookat_.y = eye_.y +temp.y;
-    lookat_.z = eye_.z + temp.z;
-    calculateUp();
+    SetLookAt(eye_.x + temp.x, eye_.y + temp.y, eye_.z + temp.z);
 }
 
 void Camera::Update() {
@@ -139,6 +151,11 @@ void Camera::Update() {
     }
     if(glfwGetKey('F') == GLFW_PRESS) {
         Move(akari::Camera::kDirDown);
+    }
+    //top view
+    if(glfwGetKey('Z') == GLFW_PRESS) {
+        SetEye(0, 2, 0);
+        SetLookAt(0, 0, 0);
     }
 
     //camera apply

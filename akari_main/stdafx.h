@@ -20,6 +20,9 @@
 #include <cstdlib>
 #include <memory>
 #include <vector>
+#include <cassert>
+#include <string>
+#include <sstream>
 
 #define WINDOW_WIDTH (1024)
 #define WINDOW_HEIGHT (768)
