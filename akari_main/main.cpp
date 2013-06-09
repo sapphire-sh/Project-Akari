@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include "terrain.h"
 #include "camera.h"
+#include "info_ui.h"
 
 /*
 　　　　　　　　　　　　　　　　　　　　　　 - - ､　　　　　　　　　　- -
@@ -21,42 +22,6 @@ _人_　　　　　　　‥ ＼丶　 　,' 　　　　　　　　　　` �
 　　　　　　　　　／　　　　　￣冂 l　　　　　/　　l
 　　　　　　　　　　　　　　　　　　 ￤　　 　 ′ 　 l
 */
-
-#define WINDOW_WIDTH (1024)
-#define WINDOW_HEIGHT (768)
-
-//임시 테스트용
-void DrawAxis() {
-
-    const static float length = 1000;
-
-    glPushMatrix();
-    glPushAttrib(GL_CURRENT_BIT);
-
-    glLineWidth(2.0f);
-
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    glBegin(GL_LINES);
-    //x
-    glColor4f(1, 0, 0, 1);
-    glVertex3f(-length/2, 0, 0);
-    glVertex3f(length/2, 0, 0);
-    
-    //y
-    glColor4f(0, 1, 0, 1);
-    glVertex3f(0, -length/2, 0);
-    glVertex3f(0, length/2, 0);
-    
-    //z
-    glColor4f(0, 0, 1, 1);
-    glVertex3f(0, 0, -length/2);
-    glVertex3f(0, 0, length/2);
-
-    glEnd();
-
-    glPopAttrib();
-    glPopMatrix();
-}
 
 void Init() {
     glfwSetWindowTitle("Project Akari");
@@ -78,14 +43,8 @@ int main(void) {
 
     akari::Terrain terr(10, 10, 0);
     akari::Camera camera;
+    akari::InfoUI info_ui;
 
-    //test font
-    FTGLPixmapFont font("../res/font/NanumGothic.ttf");
-    if(font.Error()) {
-        return -1;
-    }
-    font.FaceSize(36);
-    
     int running = GL_TRUE;
     // Initialize GLFW
     if( !glfwInit() ) {
@@ -110,14 +69,8 @@ int main(void) {
 		terr.Update(camera.GetEye(),camera.GetLookAt());
 
         terr.Draw(0);
-        DrawAxis();
-
-        glPushAttrib(GL_CURRENT_BIT);
-        //Draw blue text
-        glPixelTransferf(GL_GREEN_BIAS, -1.0f);
-        glPixelTransferf(GL_RED_BIAS, -1.0f);
-        font.Render("Hello World!", -1, FTPoint(0, WINDOW_HEIGHT - 30));
-        glPopAttrib();
+        
+        info_ui.DrawAxis();
 
         glFlush();
 

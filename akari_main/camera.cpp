@@ -61,7 +61,7 @@ void Camera::calculateUp() {
 
 void Camera::Move(Direction dir) {
 
-    const static float speed = 0.1f;
+    const static float speed = 0.05f;
 
     glm::vec3 dir_vec = lookat_;
     dir_vec -= eye_;
