@@ -76,7 +76,7 @@ void Init() {
 
 int main(void) {
 
-    akari::Terrain terr(512, 512, 0);
+    akari::Terrain terr(10, 10, 0);
     akari::Camera camera;
 
     int running = GL_TRUE;

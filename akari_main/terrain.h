@@ -35,7 +35,7 @@ public:
 private:
     VertexList vertex_list_;
     PlaneIndexList plane_index_list_;
-	ColorList diagonal_color_list_;
+	ColorList diagonal_color_list_, plane_color_list_;
 	LineIndexList outline_index_list_, diagonal_index_list_,selected_index_list_;
 	int width, height;	//of points
 	int depth;
