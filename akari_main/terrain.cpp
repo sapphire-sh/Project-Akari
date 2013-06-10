@@ -340,6 +340,10 @@ const int akari::Terrain::GetHeight() const {
 
 //0 <= w < width, 0 <= h < height
 //격자 수 x 점 수 o
-const float akari::Terrain::GetDepth(int w, int h) const {
-    return vertex_list_[width * h + w].y;
+const int akari::Terrain::GetDepth(int w, int h) const {
+    return (int)(vertex_list_[width * h + w].y * 0x7F + 0x80);
+}
+
+void akari::Terrain::SetDepth(int w, int h, int d) {
+	vertex_list_[width * h + w].y = ((d - 0x80) / (float)0x7F);
 }

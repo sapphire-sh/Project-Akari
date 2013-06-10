@@ -6,9 +6,52 @@
 #define HEADER_SIZE 13
 
 using akari::Bitmap;
+using std::cout;
+using std::hex;
+using std::endl;
 
-void Bitmap::ImportBMP(const akari::Terrain &terr, const wchar_t *path) {
+void Bitmap::ImportBMP(akari::Terrain &terr, const wchar_t *path) {
+	std::ifstream inp;
+	inp.open(path, std::ios::in | std::ios::binary);
 
+	char buffer = 0x00;
+	
+	int width = 0;
+	int height = 0;
+
+	char color = 0x00;
+
+	// skip
+	for(int i = 0; i < (2 + (4 * 4)); ++i) {
+		inp.read(&buffer, sizeof(char));
+	}
+
+	// read width
+	for(int i = 0; i < 4; ++i) {
+		inp.read(&buffer, sizeof(char));
+		width += (char)buffer * pow(0x100, i);
+	}
+
+	// read height
+	for(int i = 0; i < 4; ++i) {
+		inp.read(&buffer, sizeof(char));
+		height += (char)buffer * pow(0x100, i);
+	}
+
+	// skip
+	for(int i = 0; i < (4 * (7 + 0x100)); ++i) {
+		inp.read(&buffer, sizeof(char));
+	}
+
+	for(int j = 0; j < height; ++j) {
+		for(int i = 0; i < (ceil(width / 4.0) * 4); ++i) {
+			inp.read(&buffer, sizeof(char));
+			
+			if(i < width) {
+				terr.SetDepth(i, j, (int)(unsigned char)buffer);
+			}
+		}
+	}
 }
 
 void Bitmap::ExportBMP(const akari::Terrain &terr, const wchar_t *path) {
@@ -24,7 +67,7 @@ void Bitmap::ExportBMP(const akari::Terrain &terr, const wchar_t *path) {
         for(int w=0; w<width; ++w) {
             //적절히 변환?
             //-1 ~ 1? 시행착오 ㄱㄱ
-            int depth = terr.GetDepth(w, h) * 127 + 128 ;
+            int depth = terr.GetDepth(w, h);
         }
     }
 
@@ -32,7 +75,7 @@ void Bitmap::ExportBMP(const akari::Terrain &terr, const wchar_t *path) {
 
 	outp << "BM";
 
-	int filesize = 54 + 4 * 0x100 + (ceil(width / 4) * 4) * height;
+	int filesize = 54 + 4 * 0x100 + (ceil(width / 4.0) * 4) * height;
 	int header[HEADER_SIZE] = {filesize, 0, 1078, 40, width, height, 524289, 0, 6, 2834, 2834, 0, 0};
 
 	for(int i = 0; i < HEADER_SIZE; ++i) {
