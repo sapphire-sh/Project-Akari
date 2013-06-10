@@ -38,7 +38,8 @@ public:
 public:
     const int GetWidth() const;
     const int GetHeight() const;
-	const float GetDepth(int width, int height) const;
+	const int GetDepth(int width, int height) const;
+	void SetDepth(int width, int height, int depth);
 
 private:
     VertexList vertex_list_;

@@ -42,7 +42,7 @@ void Init() {
 
 int main(void) {
 
-    akari::Terrain terr(50, 50, 0);
+    akari::Terrain terr(10, 10, 0);
     akari::Camera camera;
     akari::InfoUI info_ui;
     akari::Bitmap bitmap_mgr;
@@ -64,8 +64,7 @@ int main(void) {
     ofn.nMaxFileTitle = 0;
     ofn.lpstrInitialDir= NULL;
     ofn.Flags = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST;
-
-
+    
 
     //temp input managing
     bool is_rotating_ = false;
