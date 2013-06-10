@@ -65,6 +65,10 @@ int main(void) {
     ofn.lpstrInitialDir= NULL;
     ofn.Flags = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST;
     
+    //init size
+    int width, height;
+    scanf("%d %d", &width, &height);
+    terr.Reset(width, height, 0);
 
     //temp input managing
     bool is_rotating_ = false;
@@ -84,7 +88,7 @@ int main(void) {
     }
 
     Init();    
-    
+
     // Main loop 
     while( running ) {
         // OpenGL rendering goes here... 
@@ -117,6 +121,11 @@ int main(void) {
 		if(glfwGetMouseButton(GLFW_MOUSE_BUTTON_LEFT)) {
 			terr.Click();
         }
+
+        if(glfwGetMouseButton(GLFW_MOUSE_BUTTON_RIGHT)) {
+            terr.RightClick();
+        }
+
         if(!is_rotating_pressing_ && glfwGetKey('M') == GLFW_PRESS) {
             is_rotating_ = !is_rotating_;
             is_rotating_pressing_ = true;
@@ -136,6 +145,13 @@ int main(void) {
             if(GetSaveFileName(&ofn)) {
                 bitmap_mgr.ExportBMP(terr, ofn.lpstrFile);
                 MessageBox ( NULL , ofn.lpstrFile , L"Saved." , MB_OK);
+            }
+        }
+
+        if(glfwGetKey('[') == GLFW_PRESS) {
+            if(GetSaveFileName(&ofn)) {
+                bitmap_mgr.ExportBMPForSimcity(terr, ofn.lpstrFile);
+                MessageBox(NULL, ofn.lpstrFile, L"Saved for simcity.", MB_OK);
             }
         }
     }

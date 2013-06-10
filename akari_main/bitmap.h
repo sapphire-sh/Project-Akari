@@ -9,6 +9,7 @@ class Bitmap {
 public:
 	void ImportBMP(akari::Terrain &terr, const wchar_t *path);
 	void ExportBMP(const akari::Terrain &terr, const wchar_t *path);
+    void ExportBMPForSimcity(const akari::Terrain &terr, const wchar_t *path);
 };
 
 };

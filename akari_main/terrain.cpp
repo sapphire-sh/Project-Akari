@@ -249,7 +249,7 @@ void Terrain::Update(glm::vec3 eye, glm::vec3 lookat) {
 	int start[2],end[2],i, j, *queue, cnt, selectedX, selectedY;
 	int m[5][2] ={{0,0},{0,1},{0,-1},{1,0},{-1,0}};
 
-	queue = (int*)malloc(sizeof(int)*(width*height)*2);
+	queue = new int[(width+height)*2];
 	setStartEnd(start,end,eye,lookat);
 	setQueue(start,end,queue,&cnt);
 
@@ -299,18 +299,21 @@ void Terrain::Update(glm::vec3 eye, glm::vec3 lookat) {
 		selected_index_list_[3]._2 = selectedX * height + selectedY;
 	}
 
-	delete queue;
+    delete queue;
 }
 
 void Terrain::Click() {
+    /*
 	int m[9][2] ={{-1,-1},{-1,0},{-1,1},{0,-1},{0,0},{0,1},{1,-1},{1,0},{1,1}},x,y,idx;
 	glm::vec3 tri[3],plane, point;
 	float temp;
-	vertex_list_[selected_index_list_[0]._1].y-=0.001f;
-	vertex_list_[selected_index_list_[1]._1].y-=0.001f;
-	vertex_list_[selected_index_list_[2]._1].y-=0.001f;
-	vertex_list_[selected_index_list_[3]._1].y-=0.001f;
-	for(int i=0;i<9;i++) {
+    */
+	vertex_list_[selected_index_list_[0]._1].y-=0.01f;
+	vertex_list_[selected_index_list_[1]._1].y-=0.01f;
+	vertex_list_[selected_index_list_[2]._1].y-=0.01f;
+	vertex_list_[selected_index_list_[3]._1].y-=0.01f;
+    /*
+    for(int i=0;i<9;i++) {
 		x=(selected_index_list_[0]._1/height)+m[i][0];
 		y=(selected_index_list_[0]._1%height)+m[i][1];
 		if(x<0||x>width-2||y<0||y>height-2)
@@ -342,6 +345,7 @@ void Terrain::Click() {
 			diagonal_color_list_[idx]._alpha = 1.0f;
 		}
 	}
+    */
 }
 
 
@@ -361,4 +365,11 @@ const int akari::Terrain::GetDepth(int w, int h) const {
 
 void akari::Terrain::SetDepth(int w, int h, int d) {
 	vertex_list_[width * h + w].y = ((d - 0x80) / (float)0x7F);
+}
+
+void akari::Terrain::RightClick() {
+    vertex_list_[selected_index_list_[0]._1].y+=0.01f;
+    vertex_list_[selected_index_list_[1]._1].y+=0.01f;
+    vertex_list_[selected_index_list_[2]._1].y+=0.01f;
+    vertex_list_[selected_index_list_[3]._1].y+=0.01f;
 }

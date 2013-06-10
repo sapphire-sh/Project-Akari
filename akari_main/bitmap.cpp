@@ -11,58 +11,58 @@ using std::hex;
 using std::endl;
 
 void Bitmap::ImportBMP(akari::Terrain &terr, const wchar_t *path) {
-	std::ifstream inp;
-	inp.open(path, std::ios::in | std::ios::binary);
+    std::ifstream inp;
+    inp.open(path, std::ios::in | std::ios::binary);
 
-	char buffer = 0x00;
-	
-	int width = 0;
-	int height = 0;
+    char buffer = 0x00;
 
-	char color = 0x00;
+    int width = 0;
+    int height = 0;
 
-	// skip
-	for(int i = 0; i < (2 + (4 * 4)); ++i) {
-		inp.read(&buffer, sizeof(char));
-	}
+    char color = 0x00;
 
-	// read width
-	for(int i = 0; i < 4; ++i) {
-		inp.read(&buffer, sizeof(char));
-		width += (char)buffer * pow(0x100, i);
-	}
+    // skip
+    for(int i = 0; i < (2 + (4 * 4)); ++i) {
+        inp.read(&buffer, sizeof(char));
+    }
 
-	// read height
-	for(int i = 0; i < 4; ++i) {
-		inp.read(&buffer, sizeof(char));
-		height += (char)buffer * pow(0x100, i);
-	}
+    // read width
+    for(int i = 0; i < 4; ++i) {
+        inp.read(&buffer, sizeof(char));
+        width += (char)buffer * pow(0x100, i);
+    }
 
-	// skip
-	for(int i = 0; i < (4 * (7 + 0x100)); ++i) {
-		inp.read(&buffer, sizeof(char));
-	}
+    // read height
+    for(int i = 0; i < 4; ++i) {
+        inp.read(&buffer, sizeof(char));
+        height += (char)buffer * pow(0x100, i);
+    }
+
+    // skip
+    for(int i = 0; i < (4 * (7 + 0x100)); ++i) {
+        inp.read(&buffer, sizeof(char));
+    }
 
     //Terrain reset
     terr.Reset(width, height, 0);
 
-	for(int j = 0; j < height; ++j) {
-		for(int i = 0; i < (ceil(width / 4.0) * 4); ++i) {
-			inp.read(&buffer, sizeof(char));
-			
-			if(i < width) {
-				terr.SetDepth(i, j, (int)(unsigned char)buffer);
-			}
-		}
-	}
+    for(int j = 0; j < height; ++j) {
+        for(int i = 0; i < (ceil(width / 4.0) * 4); ++i) {
+            inp.read(&buffer, sizeof(char));
+
+            if(i < width) {
+                terr.SetDepth(i, j, (int)(unsigned char)buffer);
+            }
+        }
+    }
 }
 
 void Bitmap::ExportBMP(const akari::Terrain &terr, const wchar_t *path) {
-	std::ofstream outp;
+    std::ofstream outp;
     outp.open(path, std::ios::out | std::ios::binary);
-	
-	int width = terr.GetWidth();
-	int height = terr.GetHeight();
+
+    int width = terr.GetWidth();
+    int height = terr.GetHeight();
 
     //Usage
     //함수 주석 ㄱ
@@ -74,33 +74,88 @@ void Bitmap::ExportBMP(const akari::Terrain &terr, const wchar_t *path) {
         }
     }
 
-	char padding = 0x00;
+    char padding = 0x00;
 
-	outp << "BM";
+    outp << "BM";
 
-	int filesize = 54 + 4 * 0x100 + (ceil(width / 4.0) * 4) * height;
-	int header[HEADER_SIZE] = {filesize, 0, 1078, 40, width, height, 524289, 0, 6, 2834, 2834, 0, 0};
+    int filesize = 54 + 4 * 0x100 + (ceil(width / 4.0) * 4) * height;
+    int header[HEADER_SIZE] = {filesize, 0, 1078, 40, width, height, 524289, 0, 6, 2834, 2834, 0, 0};
 
-	for(int i = 0; i < HEADER_SIZE; ++i) {
-		outp.write((char*) &header[i], sizeof(header[i]));
-	}
+    for(int i = 0; i < HEADER_SIZE; ++i) {
+        outp.write((char*) &header[i], sizeof(header[i]));
+    }
 
-	for(int i = 0; i < 0x100; ++i) {
-		for(int j = 0; j < 3; ++j) {
-			outp.write((char*) &i, sizeof(char));
-		}
-		outp.write((char*) &padding, sizeof(padding));
-	}
+    for(int i = 0; i < 0x100; ++i) {
+        for(int j = 0; j < 3; ++j) {
+            outp.write((char*) &i, sizeof(char));
+        }
+        outp.write((char*) &padding, sizeof(padding));
+    }
 
-	for(int i = 0; i < width; ++i) {
-		for(int j = 0; j < height; ++j) {
-			char color = terr.GetDepth(i, j);
-			outp.write((char*) &color, sizeof(char));
-		}
-		for(int j = 0; j < (4 - (width % 4)); ++j) {
-			outp.write((char*) &padding, sizeof(padding));
-		}
-	}
+    for(int i = 0; i < width; ++i) {
+        for(int j = 0; j < height; ++j) {
+            char color = terr.GetDepth(i, j);
+            outp.write((char*) &color, sizeof(char));
+        }
+        for(int j = 0; j < (4 - (width % 4)); ++j) {
+            outp.write((char*) &padding, sizeof(padding));
+        }
+    }
 
-	outp.close();
+    outp.close();
+}
+
+void akari::Bitmap::ExportBMPForSimcity(const akari::Terrain &terr, const wchar_t *path) {
+    std::ofstream outp;
+    outp.open(path, std::ios::out | std::ios::binary);
+
+    int width = terr.GetWidth();
+    int height = terr.GetHeight();
+    const static int simcity_length = 1025;
+
+    for(int h=0; h<height; ++h) {
+        for(int w=0; w<width; ++w) {
+            int depth = terr.GetDepth(w, h);
+        }
+    }
+
+    char padding = 0x00;
+
+    outp << "BM";
+
+    int filesize = 54 + 4 * 0x100 + (ceil(simcity_length / 4.0) * 4) * simcity_length;
+    int header[HEADER_SIZE] = {filesize, 0, 1078, 40, simcity_length, simcity_length, 524289, 0, 6, 2834, 2834, 0, 0};
+
+    for(int i = 0; i < HEADER_SIZE; ++i) {
+        outp.write((char*) &header[i], sizeof(header[i]));
+    }
+
+    for(int i = 0; i < 0x100; ++i) {
+        for(int j = 0; j < 3; ++j) {
+            outp.write((char*) &i, sizeof(char));
+        }
+        outp.write((char*) &padding, sizeof(padding));
+    }
+
+    for(int j=0; j<=simcity_length / height; ++j) {
+        for(int h = 0; h < height; ++h) {
+            if(h + height * j >= simcity_length) {
+                break;
+            }
+            for(int i=0; i<=simcity_length / width; ++i) {
+                for(int w = 0; w < width; ++w) {
+                    if(w + width * i >= simcity_length) {
+                        break;
+                    }
+                    char color = terr.GetDepth(w, h);
+                    outp.write((char*) &color, sizeof(char));
+                }
+            }
+            for(int j = 0; j < (4 - (simcity_length % 4)); ++j) {
+                outp.write((char*) &padding, sizeof(padding));
+            }
+        }
+    }
+
+    outp.close();
 }

@@ -8,7 +8,7 @@ using akari::InfoUI;
 using akari::Terrain;
 
 InfoUI::InfoUI() {
-    font_.reset(new FTGLPixmapFont("../res/font/NanumGothic.ttf"));
+    font_.reset(new FTGLPixmapFont("NanumGothic.ttf"));
     if(font_->Error()) {
         assert(0 && "font init error");
     }
@@ -79,10 +79,15 @@ void akari::InfoUI::DrawIsRotating(bool is_rotating) {
 
 void akari::InfoUI::DrawHelp() {
     font_->FaceSize(15);
-    font_->Render("Z : Top View", -1, FTPoint(8, 60));
-    font_->Render("X : Front View", -1, FTPoint(8, 45));
-    font_->Render("C : Quarter View", -1, FTPoint(8, 30));
-    font_->Render("M : Rotate", -1, FTPoint(8, 15));
+    font_->Render("Z : Top View", -1, FTPoint(8, 105));
+    font_->Render("X : Front View", -1, FTPoint(8, 90));
+    font_->Render("C : Quarter View", -1, FTPoint(8, 75));
+    font_->Render("M : Rotate", -1, FTPoint(8, 60));
+
+    font_->Render("O : File Open", -1, FTPoint(8, 45));
+    font_->Render("P : File Save", -1, FTPoint(8, 30));
+    font_->Render("[ : File Save for simcity", -1, FTPoint(8, 15));
+    
 }
 
 void akari::InfoUI::DrawTerrainInfo(const akari::Terrain &terrain) {

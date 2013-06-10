@@ -34,6 +34,7 @@ public:
 	void setStartEnd (int *start, int *end,glm::vec3 eye, glm::vec3 lookat);
 	void setQueue(int *start, int *end, int *queue, int *cnt);
 	void Click();
+    void RightClick();
 
 public:
     const int GetWidth() const;
