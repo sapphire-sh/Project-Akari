@@ -24,6 +24,9 @@ public:
     ~Terrain();
 
 public:
+    void Init(int _width, int _height, int _depth);
+    void Reset(int _width, int _height, int _depth);
+
     void Draw(float elapsed, bool is_rotating);
 	void Update(glm::vec3 eye, glm::vec3 lookat);
 	float isMet(glm::vec3 eye, glm::vec3 lookat, glm::vec3 plane, float d);

@@ -5,8 +5,15 @@
 using akari::Terrain;
 
 Terrain::Terrain(int _width, int _height, int _depth) {
+    Init(_width, _height, _depth);
+}
 
-    //vertex, index init
+Terrain::~Terrain() {
+
+}
+
+void akari::Terrain::Init(int _width, int _height, int _depth) {
+     //vertex, index init
 	width = _width;
 	height = _height;
 	depth = _depth;
@@ -97,8 +104,16 @@ Terrain::Terrain(int _width, int _height, int _depth) {
 	selected_index_list_[3]._2 = (width/2) * height + height/2;
 }
 
-Terrain::~Terrain() {
+void Terrain::Reset(int _width, int _height, int _depth) {
+    VertexList().swap(vertex_list_);
+    PlaneIndexList().swap(plane_index_list_);
+    ColorList().swap(diagonal_color_list_);
+    ColorList().swap(plane_color_list_);
+    LineIndexList().swap(outline_index_list_);
+    LineIndexList().swap(diagonal_index_list_);
+    LineIndexList().swap(selected_index_list_);
 
+    Init(_width, _height, _depth);
 }
 
 void Terrain::Draw(float elapsed, bool is_rotating = false) {
