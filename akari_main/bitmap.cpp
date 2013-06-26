@@ -1,3 +1,4 @@
+ï»¿// Å¬nicode please
 #include "stdafx.h"
 #include <fstream>
 #include "bitmap.h"
@@ -65,11 +66,11 @@ void Bitmap::ExportBMP(const akari::Terrain &terr, const wchar_t *path) {
     int height = terr.GetHeight();
 
     //Usage
-    //ÇÔ¼ö ÁÖ¼® ¤¡
+    //í•¨ìˆ˜ ì£¼ì„ ã„±
     for(int h=0; h<height; ++h) {
         for(int w=0; w<width; ++w) {
-            //ÀûÀıÈ÷ º¯È¯?
-            //-1 ~ 1? ½ÃÇàÂø¿À ¤¡¤¡
+            //ì ì ˆíˆ ë³€í™˜?
+            //-1 ~ 1? ì‹œí–‰ì°©ì˜¤ ã„±ã„±
             int depth = terr.GetDepth(w, h);
         }
     }
